@@ -33,7 +33,8 @@ export class DataService {
 
   async getMedicinesByCategory(category: string): Promise<Medicine[]> {
     try {
-      return await this.http.get<Medicine[]>(`/medicines/category/${category}`);
+      const medicines = await this.http.get<Medicine[]>(`/medicines/category/${category}`);
+      return medicines.map(medicine => this.normalizeMedicine(medicine));
     } catch (error) {
       console.error('Error fetching medicines by category:', error);
       return [];
