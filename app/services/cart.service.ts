@@ -111,4 +111,33 @@ export class CartService {
   formatPrice(price: number): string {
     return `₹${price.toFixed(2)}`;
   }
+
+  private showMessage(message: string): void {
+    // Simple console message for now, replace with proper snackbar later
+    console.log('Cart Message:', message);
+    
+    // Create a simple toast notification
+    if (typeof window !== 'undefined') {
+      const toast = document.createElement('div');
+      toast.textContent = message;
+      toast.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #4caf50;
+        color: white;
+        padding: 12px 20px;
+        border-radius: 4px;
+        z-index: 10000;
+        max-width: 300px;
+      `;
+      document.body.appendChild(toast);
+      
+      setTimeout(() => {
+        if (document.body.contains(toast)) {
+          document.body.removeChild(toast);
+        }
+      }, 2000);
+    }
+  }
 }
