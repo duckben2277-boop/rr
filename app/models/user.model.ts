@@ -1,10 +1,14 @@
 export interface User {
-  id: string;
+  id?: string;
+  _id?: string;
   name: string;
   email: string;
   role: UserRole;
   medicalHistory?: string[];
   orders?: Order[];
+  createdAt?: string;
+  updatedAt?: string;
+  __v?: number;
 }
 
 export type UserRole = 'user' | 'admin';
