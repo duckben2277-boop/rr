@@ -56,7 +56,7 @@ import { Medicine } from '../../models/medicine.model';
                     [(ngModel)]="symptom.selected"
                     (change)="onSymptomToggle(symptom.id || symptom._id, $event.checked)"
                   ></mat-checkbox>
-                  <div class="grid gap-1.5 leading-none">
+                  <div class="grid gap-1_5 leading-none">
                     <label class="text-sm font-medium cursor-pointer" 
                            (click)="toggleSymptom(symptom)">
                       {{symptom.name}}
