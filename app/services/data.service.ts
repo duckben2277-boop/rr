@@ -23,7 +23,8 @@ export class DataService {
 
   async getMedicineById(id: string): Promise<Medicine | null> {
     try {
-      return await this.http.get<Medicine>(`/medicines/${id}`);
+      const medicine = await this.http.get<Medicine>(`/medicines/${id}`);
+      return this.normalizeMedicine(medicine);
     } catch (error) {
       console.error('Error fetching medicine by ID:', error);
       return null;
