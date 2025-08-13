@@ -7,6 +7,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatIconModule } from '@angular/material/icon';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 import { DataService } from '../../services/data.service';
 import { CartService } from '../../services/cart.service';
@@ -26,13 +27,11 @@ import { Observable } from 'rxjs';
     MatInputModule,
     MatFormFieldModule,
     MatTabsModule,
-    MatIconModule
+    MatIconModule,
+    MatProgressSpinnerModule
   ],
-// templateUrl: './medicines.html',
-//   styleUrls: ['./medicines.scss']
  template: ` 
-    <!-- Your inline HTML here -->
-         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
       <div class="mb-8">
         <h1 class="text-3xl font-bold mb-2">Medicines</h1>
         <p class="text-gray-600">
@@ -40,119 +39,126 @@ import { Observable } from 'rxjs';
         </p>
       </div>
 
-      <!-- Personalized Recommendations -->
-      <div *ngIf="(currentUser$ | async) && personalizedRecommendations.length > 0" class="mb-8">
-        <h2 class="text-xl font-semibold mb-4 text-medical-600">
-          Recommended for You
-        </h2>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          <mat-card *ngFor="let medicine of personalizedRecommendations; trackBy: trackByMedicineId"
-                    class="medicine-card recommended">
-            <div class="h-40 bg-white flex items-center justify-center p-4 overflow-hidden">
-              <img [src]="medicine.image" [alt]="medicine.name" 
-                   class="w-full h-full object-contain hover:scale-105 transition-transform duration-300"
-                   onerror="this.src='assets/images/placeholder.svg'; this.onerror=null;"/>
-            </div>
-            <mat-card-content class="p-4">
-              <div class="bg-medical-100 text-medical-800 text-xs font-semibold inline-block px-2 py-1 rounded mb-2">
-                Recommended
-              </div>
-              <mat-card-title class="font-medium text-lg mb-1">{{medicine.name}}</mat-card-title>
-              <p class="text-sm text-gray-600 mb-2">{{medicine.description}}</p>
-              <p class="text-sm text-gray-600 mb-4">Dosage: {{medicine.dosage}}</p>
-              <div class="flex justify-between items-center">
-                <span class="font-bold text-medical-600">{{formatPrice(medicine.price)}}</span>
-                <button mat-raised-button color="primary" (click)="addToCart(medicine)">
-                  Add to Cart
-                </button>
-              </div>
-            </mat-card-content>
-          </mat-card>
-        </div>
+      <!-- Loading Spinner -->
+      <div *ngIf="isLoading" class="flex justify-center py-10">
+        <mat-spinner diameter="50"></mat-spinner>
       </div>
 
-      <!-- Search and Filter -->
-      <div class="flex flex-col md:flex-row gap-4 mb-8">
-        <mat-form-field class="flex-grow">
-          <mat-label>Search medicines...</mat-label>
-          <input matInput [(ngModel)]="searchTerm" (input)="onSearchChange()" />
-          <mat-icon matPrefix>search</mat-icon>
-        </mat-form-field>
-        <div class="flex items-center gap-2">
-          <mat-icon class="text-gray-500">filter_alt</mat-icon>
-          <span class="text-sm text-gray-600">Filter by category:</span>
+      <!-- Content -->
+      <div *ngIf="!isLoading">
+        <!-- Personalized Recommendations -->
+        <div *ngIf="(currentUser$ | async) && personalizedRecommendations.length > 0" class="mb-8">
+          <h2 class="text-xl font-semibold mb-4 text-medical-600">
+            Recommended for You
+          </h2>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <mat-card *ngFor="let medicine of personalizedRecommendations; trackBy: trackByMedicineId"
+                      class="medicine-card recommended">
+              <div class="h-40 bg-white flex items-center justify-center p-4 overflow-hidden">
+                <img [src]="medicine.image" [alt]="medicine.name" 
+                     class="w-full h-full object-contain hover:scale-105 transition-transform duration-300"
+                     onerror="this.src='assets/images/placeholder.svg'; this.onerror=null;"/>
+              </div>
+              <mat-card-content class="p-4">
+                <div class="bg-medical-100 text-medical-800 text-xs font-semibold inline-block px-2 py-1 rounded mb-2">
+                  Recommended
+                </div>
+                <mat-card-title class="font-medium text-lg mb-1">{{medicine.name}}</mat-card-title>
+                <p class="text-sm text-gray-600 mb-2">{{medicine.description}}</p>
+                <p class="text-sm text-gray-600 mb-4">Dosage: {{medicine.dosage}}</p>
+                <div class="flex justify-between items-center">
+                  <span class="font-bold text-medical-600">{{formatPrice(medicine.price)}}</span>
+                  <button mat-raised-button color="primary" (click)="addToCart(medicine)">
+                    Add to Cart
+                  </button>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </div>
         </div>
+
+        <!-- Search and Filter -->
+        <div class="flex flex-col md:flex-row gap-4 mb-8">
+          <mat-form-field class="flex-grow">
+            <mat-label>Search medicines...</mat-label>
+            <input matInput [(ngModel)]="searchTerm" (input)="onSearchChange()" />
+            <mat-icon matPrefix>search</mat-icon>
+          </mat-form-field>
+          <div class="flex items-center gap-2">
+            <mat-icon class="text-gray-500">filter_alt</mat-icon>
+            <span class="text-sm text-gray-600">Filter by category:</span>
+          </div>
+        </div>
+
+        <!-- Medicine Tabs -->
+        <mat-tab-group>
+          <!-- All Medicines -->
+          <mat-tab label="All">
+            <div class="pt-6">
+              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <mat-card *ngFor="let medicine of filteredMedicines; trackBy: trackByMedicineId"
+                          class="medicine-card">
+                  <div class="h-40 bg-white flex items-center justify-center p-4 overflow-hidden">
+                    <img [src]="medicine.image" [alt]="medicine.name" 
+                         class="w-full h-full object-contain hover:scale-105 transition-transform duration-300"
+                         onerror="this.src='assets/images/placeholder.svg'; this.onerror=null;"/>
+                  </div>
+                  <mat-card-content class="p-4">
+                    <mat-card-title class="font-medium text-lg mb-1">{{medicine.name}}</mat-card-title>
+                    <p class="text-sm text-gray-600 mb-2">{{medicine.description}}</p>
+                    <p class="text-sm text-gray-600 mb-4">Dosage: {{medicine.dosage}}</p>
+                    <div class="flex justify-between items-center">
+                      <span class="font-bold text-medical-600">{{formatPrice(medicine.price)}}</span>
+                      <button mat-raised-button color="primary" (click)="addToCart(medicine)">
+                        Add to Cart
+                      </button>
+                    </div>
+                  </mat-card-content>
+                </mat-card>
+              </div>
+              
+              <div *ngIf="filteredMedicines.length === 0" class="text-center py-10">
+                <p class="text-gray-500">No medicines found matching your search.</p>
+              </div>
+            </div>
+          </mat-tab>
+
+          <!-- Category Tabs -->
+          <mat-tab *ngFor="let category of categories; trackBy: trackByCategoryId" 
+                   [label]="getCategoryDisplayName(category)">
+            <div class="pt-6">
+              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <mat-card *ngFor="let medicine of getMedicinesByCategory(category); trackBy: trackByMedicineId"
+                          class="medicine-card">
+                  <div class="h-40 bg-white flex items-center justify-center p-4 overflow-hidden">
+                    <img [src]="medicine.image" [alt]="medicine.name" 
+                         class="w-full h-full object-contain hover:scale-105 transition-transform duration-300"
+                         onerror="this.src='assets/images/placeholder.svg'; this.onerror=null;"/>
+                  </div>
+                  <mat-card-content class="p-4">
+                    <mat-card-title class="font-medium text-lg mb-1">{{medicine.name}}</mat-card-title>
+                    <p class="text-sm text-gray-600 mb-2">{{medicine.description}}</p>
+                    <p class="text-sm text-gray-600 mb-4">Dosage: {{medicine.dosage}}</p>
+                    <div class="flex justify-between items-center">
+                      <span class="font-bold text-medical-600">{{formatPrice(medicine.price)}}</span>
+                      <button mat-raised-button color="primary" (click)="addToCart(medicine)">
+                        Add to Cart
+                      </button>
+                    </div>
+                  </mat-card-content>
+                </mat-card>
+              </div>
+              
+              <div *ngIf="getMedicinesByCategory(category).length === 0" class="text-center py-10">
+                <p class="text-gray-500">No medicines found in this category matching your search.</p>
+              </div>
+            </div>
+          </mat-tab>
+        </mat-tab-group>
       </div>
-
-      <!-- Medicine Tabs -->
-      <mat-tab-group>
-        <!-- All Medicines -->
-        <mat-tab label="All">
-          <div class="pt-6">
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              <mat-card *ngFor="let medicine of filteredMedicines; trackBy: trackByMedicineId"
-                        class="medicine-card">
-                <div class="h-40 bg-white flex items-center justify-center p-4 overflow-hidden">
-                  <img [src]="medicine.image" [alt]="medicine.name" 
-                       class="w-full h-full object-contain hover:scale-105 transition-transform duration-300"
-                       onerror="this.src='assets/images/placeholder.svg'; this.onerror=null;"/>
-                </div>
-                <mat-card-content class="p-4">
-                  <mat-card-title class="font-medium text-lg mb-1">{{medicine.name}}</mat-card-title>
-                  <p class="text-sm text-gray-600 mb-2">{{medicine.description}}</p>
-                  <p class="text-sm text-gray-600 mb-4">Dosage: {{medicine.dosage}}</p>
-                  <div class="flex justify-between items-center">
-                    <span class="font-bold text-medical-600">{{formatPrice(medicine.price)}}</span>
-                    <button mat-raised-button color="primary" (click)="addToCart(medicine)">
-                      Add to Cart
-                    </button>
-                  </div>
-                </mat-card-content>
-              </mat-card>
-            </div>
-            
-            <div *ngIf="filteredMedicines.length === 0" class="text-center py-10">
-              <p class="text-gray-500">No medicines found matching your search.</p>
-            </div>
-          </div>
-        </mat-tab>
-
-        <!-- Category Tabs -->
-        <mat-tab *ngFor="let category of categories; trackBy: trackByCategoryId" 
-                 [label]="getCategoryDisplayName(category)">
-          <div class="pt-6">
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              <mat-card *ngFor="let medicine of getMedicinesByCategory(category); trackBy: trackByMedicineId"
-                        class="medicine-card">
-                <div class="h-40 bg-white flex items-center justify-center p-4 overflow-hidden">
-                  <img [src]="medicine.image" [alt]="medicine.name" 
-                       class="w-full h-full object-contain hover:scale-105 transition-transform duration-300"
-                       onerror="this.src='assets/images/placeholder.svg'; this.onerror=null;"/>
-                </div>
-                <mat-card-content class="p-4">
-                  <mat-card-title class="font-medium text-lg mb-1">{{medicine.name}}</mat-card-title>
-                  <p class="text-sm text-gray-600 mb-2">{{medicine.description}}</p>
-                  <p class="text-sm text-gray-600 mb-4">Dosage: {{medicine.dosage}}</p>
-                  <div class="flex justify-between items-center">
-                    <span class="font-bold text-medical-600">{{formatPrice(medicine.price)}}</span>
-                    <button mat-raised-button color="primary" (click)="addToCart(medicine)">
-                      Add to Cart
-                    </button>
-                  </div>
-                </mat-card-content>
-              </mat-card>
-            </div>
-            
-            <div *ngIf="getMedicinesByCategory(category).length === 0" class="text-center py-10">
-              <p class="text-gray-500">No medicines found in this category matching your search.</p>
-            </div>
-          </div>
-        </mat-tab>
-      </mat-tab-group>
     </div>
   `,
   styles: [`
-    /* Your inline CSS here */
      .w-full { width: 100%; }
     .overflow-hidden { overflow: hidden; }
     .transition-transform { transition-property: transform; }
@@ -207,6 +213,7 @@ import { Observable } from 'rxjs';
     .flex-grow { flex-grow: 1; }
     .items-center { align-items: center; }
     .justify-between { justify-content: space-between; }
+    .justify-center { justify-content: center; }
     
     .h-40 { height: 10rem; }
     
@@ -257,6 +264,9 @@ export class MedicinesComponent implements OnInit {
   categories: string[] = [];
   personalizedRecommendations: Medicine[] = [];
   currentUser$: Observable<User | null>;
+  isLoading = true;
+
+  private categoryMedicineCache: { [key: string]: Medicine[] } = {};
 
   constructor(
     private dataService: DataService,
@@ -266,24 +276,45 @@ export class MedicinesComponent implements OnInit {
     this.currentUser$ = this.authService.currentUser$;
   }
 
-  ngOnInit(): void {
-    this.medicines = this.dataService.getAllMedicines();
-    this.filteredMedicines = [...this.medicines];
-    this.categories = this.dataService.getCategories();
-    
-    // Get personalized recommendations
-    this.getPersonalizedRecommendations();
+  async ngOnInit(): Promise<void> {
+    try {
+      // Load all data asynchronously
+      const [medicines, categories] = await Promise.all([
+        this.dataService.getAllMedicines(),
+        this.dataService.getCategories()
+      ]);
+
+      this.medicines = medicines;
+      this.filteredMedicines = [...this.medicines];
+      this.categories = categories;
+      
+      // Get personalized recommendations
+      await this.getPersonalizedRecommendations();
+      
+      // Pre-load category medicines
+      await this.preloadCategoryMedicines();
+      
+    } catch (error) {
+      console.error('Error loading medicines data:', error);
+    } finally {
+      this.isLoading = false;
+    }
   }
 
-  onSearchChange(): void {
+  async onSearchChange(): Promise<void> {
     if (this.searchTerm.trim()) {
-      this.filteredMedicines = this.dataService.searchMedicines(this.searchTerm);
+      try {
+        this.filteredMedicines = await this.dataService.searchMedicines(this.searchTerm);
+      } catch (error) {
+        console.error('Error searching medicines:', error);
+        this.filteredMedicines = [];
+      }
     } else {
       this.filteredMedicines = [...this.medicines];
     }
   }
 
-  private getPersonalizedRecommendations(): void {
+  private async getPersonalizedRecommendations(): Promise<void> {
     const currentUser = this.authService.getCurrentUser();
     if (!currentUser?.medicalHistory?.length) {
       this.personalizedRecommendations = [];
@@ -298,8 +329,18 @@ export class MedicinesComponent implements OnInit {
     });
   }
 
+  private async preloadCategoryMedicines(): Promise<void> {
+    try {
+      for (const category of this.categories) {
+        this.categoryMedicineCache[category] = await this.dataService.getMedicinesByCategory(category);
+      }
+    } catch (error) {
+      console.error('Error preloading category medicines:', error);
+    }
+  }
+
   getMedicinesByCategory(category: string): Medicine[] {
-    const categoryMedicines = this.dataService.getMedicinesByCategory(category);
+    const categoryMedicines = this.categoryMedicineCache[category] || [];
     if (this.searchTerm.trim()) {
       return categoryMedicines.filter(medicine =>
         medicine.name.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
@@ -325,7 +366,7 @@ export class MedicinesComponent implements OnInit {
   }
 
   trackByMedicineId(index: number, medicine: Medicine): string {
-    return medicine.id;
+    return medicine.id || medicine._id || index.toString();
   }
 
   trackByCategoryId(index: number, category: string): string {
