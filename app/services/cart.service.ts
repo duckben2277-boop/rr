@@ -63,7 +63,10 @@ export class CartService {
 
   removeItem(medicineId: string): void {
     const currentItems = this.cartItemsSubject.value;
-    const updatedItems = currentItems.filter(item => item.medicine.id !== medicineId);
+    const updatedItems = currentItems.filter(item => {
+      const itemId = item.medicine.id || item.medicine._id;
+      return itemId !== medicineId;
+    });
     this.cartItemsSubject.next(updatedItems);
     this.saveCartToStorage();
   }
@@ -75,11 +78,12 @@ export class CartService {
     }
 
     const currentItems = this.cartItemsSubject.value;
-    const updatedItems = currentItems.map(item =>
-      item.medicine.id === medicineId
+    const updatedItems = currentItems.map(item => {
+      const itemId = item.medicine.id || item.medicine._id;
+      return itemId === medicineId
         ? { ...item, quantity }
-        : item
-    );
+        : item;
+    });
 
     this.cartItemsSubject.next(updatedItems);
     this.saveCartToStorage();
