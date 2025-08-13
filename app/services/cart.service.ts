@@ -37,15 +37,20 @@ export class CartService {
 
   addItem(medicine: Medicine): void {
     const currentItems = this.cartItemsSubject.value;
-    const existingItem = currentItems.find(item => item.medicine.id === medicine.id);
+    const medicineId = medicine.id || medicine._id;
+    const existingItem = currentItems.find(item => {
+      const itemId = item.medicine.id || item.medicine._id;
+      return itemId === medicineId;
+    });
 
     let updatedItems: CartItem[];
     if (existingItem) {
-      updatedItems = currentItems.map(item =>
-        item.medicine.id === medicine.id
+      updatedItems = currentItems.map(item => {
+        const itemId = item.medicine.id || item.medicine._id;
+        return itemId === medicineId
           ? { ...item, quantity: item.quantity + 1 }
-          : item
-      );
+          : item;
+      });
     } else {
       updatedItems = [...currentItems, { medicine, quantity: 1 }];
     }
@@ -53,9 +58,7 @@ export class CartService {
     this.cartItemsSubject.next(updatedItems);
     this.saveCartToStorage();
 
-    this.snackBar.open(`${medicine.name} added to cart`, 'Close', {
-      duration: 2000,
-    });
+    this.showMessage(`${medicine.name} added to cart`);
   }
 
   removeItem(medicineId: string): void {
