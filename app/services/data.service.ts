@@ -13,7 +13,8 @@ export class DataService {
   // Medicine methods
   async getAllMedicines(): Promise<Medicine[]> {
     try {
-      return await this.http.get<Medicine[]>('/medicines');
+      const medicines = await this.http.get<Medicine[]>('/medicines');
+      return medicines.map(medicine => this.normalizeMedicine(medicine));
     } catch (error) {
       console.error('Error fetching medicines:', error);
       return [];
