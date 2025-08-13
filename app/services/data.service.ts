@@ -52,7 +52,8 @@ export class DataService {
 
   async searchMedicines(searchTerm: string): Promise<Medicine[]> {
     try {
-      return await this.http.get<Medicine[]>(`/medicines/search/${encodeURIComponent(searchTerm)}`);
+      const medicines = await this.http.get<Medicine[]>(`/medicines/search/${encodeURIComponent(searchTerm)}`);
+      return medicines.map(medicine => this.normalizeMedicine(medicine));
     } catch (error) {
       console.error('Error searching medicines:', error);
       return [];
@@ -62,7 +63,8 @@ export class DataService {
   // Symptom methods
   async getAllSymptoms(): Promise<Symptom[]> {
     try {
-      return await this.http.get<Symptom[]>('/symptoms');
+      const symptoms = await this.http.get<Symptom[]>('/symptoms');
+      return symptoms.map(symptom => this.normalizeSymptom(symptom));
     } catch (error) {
       console.error('Error fetching symptoms:', error);
       return [];
@@ -71,7 +73,8 @@ export class DataService {
 
   async getSymptomById(id: string): Promise<Symptom | null> {
     try {
-      return await this.http.get<Symptom>(`/symptoms/${id}`);
+      const symptom = await this.http.get<Symptom>(`/symptoms/${id}`);
+      return this.normalizeSymptom(symptom);
     } catch (error) {
       console.error('Error fetching symptom by ID:', error);
       return null;
@@ -80,7 +83,8 @@ export class DataService {
 
   async getMedicinesBySymptomId(symptomId: string): Promise<Medicine[]> {
     try {
-      return await this.http.get<Medicine[]>(`/symptoms/${symptomId}/medicines`);
+      const medicines = await this.http.get<Medicine[]>(`/symptoms/${symptomId}/medicines`);
+      return medicines.map(medicine => this.normalizeMedicine(medicine));
     } catch (error) {
       console.error('Error fetching medicines by symptom:', error);
       return [];
