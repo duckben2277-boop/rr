@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { CartItem } from '../models/cart.model';
 import { Medicine } from '../models/medicine.model';
-import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Injectable({
   providedIn: 'root'
@@ -11,7 +10,7 @@ export class CartService {
   private cartItemsSubject = new BehaviorSubject<CartItem[]>([]);
   public cartItems$ = this.cartItemsSubject.asObservable();
 
-  constructor(private snackBar: MatSnackBar) {
+  constructor() {
     this.loadCartFromStorage();
   }
 
