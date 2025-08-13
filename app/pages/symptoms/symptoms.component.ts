@@ -170,7 +170,7 @@ import { Medicine } from '../../models/medicine.model';
     .grid { display: grid; }
     .grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
     .gap-8 { gap: 2rem; }
-    .gap-1.5 { gap: 0.375rem; }
+    .gap-1_5 { gap: 0.375rem; }
     
     .text-3xl { font-size: 1.875rem; }
     .text-sm { font-size: 0.875rem; }
