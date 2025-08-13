@@ -65,7 +65,7 @@ import { Observable } from 'rxjs';
                   <div class="flex items-center space-x-2 mt-4 sm:mt-0">
                     <button 
                       mat-icon-button 
-                      (click)="decreaseQuantity(item.medicine.id, item.quantity)"
+                      (click)="decreaseQuantity(item.medicine.id || item.medicine._id || '', item.quantity)"
                       class="h-8 w-8"
                     >
                       <mat-icon>remove_circle_outline</mat-icon>
