@@ -136,4 +136,32 @@ export class DataService {
       return false;
     }
   }
+
+  // Helper methods to normalize MongoDB objects
+  private normalizeMedicine(medicine: any): Medicine {
+    return {
+      id: medicine._id || medicine.id,
+      _id: medicine._id,
+      name: medicine.name,
+      description: medicine.description,
+      price: medicine.price,
+      image: medicine.image,
+      dosage: medicine.dosage,
+      category: medicine.category,
+      createdAt: medicine.createdAt,
+      updatedAt: medicine.updatedAt
+    };
+  }
+
+  private normalizeSymptom(symptom: any): Symptom {
+    return {
+      id: symptom._id || symptom.id,
+      _id: symptom._id,
+      name: symptom.name,
+      description: symptom.description,
+      relatedMedicines: symptom.relatedMedicines,
+      createdAt: symptom.createdAt,
+      updatedAt: symptom.updatedAt
+    };
+  }
 }
